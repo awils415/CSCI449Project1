@@ -1,18 +1,25 @@
-import scapy.all
-from scapy.all import IP, UDP, sr1
+#!/usr/bin/python
 
-ipaddr = "10.0.0.0"
-for i in range(1, 28):
-  pkt = IP(dst=ipaddr, ttl=i) / UDP(dport=33434)
-  # Send the packet and get a reply
-  reply = sr1(pkt, verbose=0)
-  if reply is None:
-    # No reply
-    break
-  elif reply.type == 3:
-    # We've reached our destination
-    print("Done!", reply.src)
-    break
-  else:
-     # We're in the middle somewhere
-     print("%d hops away: " % i , reply.src)
+from scapy.all import *
+
+host = sys.argv[1]
+print("Traceroute " + host)
+
+ttl = 1
+while 1:
+    IPLayer = IP()
+    IPLayer.dst = host
+    IPLayer.ttl = ttl
+    ICMPpkt = ICMP()
+    pkt = IPLayer/ICMPpkt
+    # sends packets and waits for first answer
+    replypkt = sr1(pkt, verbose=0) # sr1 function will send the packet.
+    if replypkt is None:
+        break
+    elif replypkt[ICMP].type == 0:
+        print("%d hops away: " %ttl, replypkt[IP].src)
+        print("Done", replypkt[IP].src)
+        break
+    else:
+        print("%d hops away: " %ttl,replypkt[IP].src)
+        ttl+=1
