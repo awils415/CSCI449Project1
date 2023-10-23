@@ -1,6 +1,8 @@
-#!/usr/bin/python
 import os
 os.sys.path.append('/usr/local/lib/python3/site-packages')
+
+#!/usr/bin/python
+
 import sys
 import networkx as nx
 import ipaddress
