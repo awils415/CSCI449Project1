@@ -5,6 +5,8 @@ from scapy.all import *
 import threading
 import json
 
+results_lock = threading.Lock()
+file_lock = threading.Lock()
 def trace_route(host, results):
     print("Traceroute " + host)
 
@@ -28,7 +30,8 @@ def trace_route(host, results):
                 "hop": ttl,
                 "ip": replypkt[IP].src
             }
-            results[host].append(result)
+            with results_lock:
+                results[host].append(result)
             break
         else:
             print("%d hops away: " % ttl, replypkt[IP].src)
@@ -72,12 +75,14 @@ def generate_ips(start_ip, end_ip, skip=1):
 if __name__ == '__main__':
     results = {}
     # private ip address range
-    public_ip_range = generate_ips("10.0.0.0", "10.255.255.255", skip=8)
+    # public_ip_range = generate_ips("10.0.0.0", "10.255.255.255", skip=8)
     # public ip address range
-    # public_ip_range = generate_ips("138.238.0.0", "138.238.255.255", skip=1)
+    public_ip_range = generate_ips("10.2.0.0", "10.2.255.255", skip=64)
     trace_route_with_threads(public_ip_range, results)
-
-    # save the results to a JSON file
-    with open("traceroute_results.json", "a") as json_file:
-        json.dump(results, json_file, indent=4)
-
+    print("DONE?")
+    try:
+        with file_lock:
+            with open("traceroute_results.json", "a+") as json_file:
+                json.dump(results, json_file, indent=4)
+    except Exception as e:
+        print("An error occurred while writing to the JSON file:", str(e))
