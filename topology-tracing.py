@@ -78,5 +78,6 @@ if __name__ == '__main__':
     trace_route_with_threads(public_ip_range, results)
 
     # save the results to a JSON file
-    with open("traceroute_results.json", "w") as json_file:
+    with open("traceroute_results.json", "a") as json_file:
         json.dump(results, json_file, indent=4)
+
