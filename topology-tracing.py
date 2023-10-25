@@ -77,7 +77,12 @@ if __name__ == '__main__':
     # private ip address range
     # public_ip_range = generate_ips("10.0.0.0", "10.255.255.255", skip=8)
     # public ip address range
-    public_ip_range = generate_ips("10.2.0.0", "10.2.255.255", skip=64)
+    if len(sys.argv) != 3:
+        print("Usage: python your_script.py <start_ip> <end_ip>")
+        sys.exit(1)
+    start_ip = sys.argv[1]
+    end_ip = sys.argv[2]
+    public_ip_range = generate_ips(start_ip, end_ip, skip=64)
     trace_route_with_threads(public_ip_range, results)
     print("DONE?")
     try:
